@@ -95,6 +95,23 @@ class Avenant:
         }
         return odict
 
+    def get_reassureurs_by_facultative(self, facultative : Facultative) -> list[Reassureur]:
+        reassureurs = []
+        for reassureur in self.reassureurs:
+            if reassureur.id_facultative == facultative.id_facultative :
+                reassureurs.append(reassureur)
+        return reassureurs
+
+    def attribute_reassureurs_to_facultatives(self) -> None:
+        """
+        Attribuer 'tous les' réassureurs aux différents facultatives
+        """
+        nfacultatives = []
+        for facultative in self.facultatives:
+            facultative.reassureurs = self.get_reassureurs_by_facultative(facultative)
+            nfacultatives.append(facultative)
+        self.facultatives = nfacultatives
+
 
     def get_garanties_by_risque(self, risque : Risque) -> list[Garantie]:
         garanties = []
@@ -156,7 +173,7 @@ class Avenant:
                 break
         return exist, arisque, position
 
-    def find_a_garantie(self, garanties: list[Garantie], id_garantie : str) -> tuple[bool,Risque,int]:
+    def find_a_garantie(self, garanties: list[Garantie], id_garantie : str) -> tuple[bool,Garantie,int]:
         exist = False
         agarantie = None
         position= None

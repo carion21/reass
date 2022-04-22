@@ -3,7 +3,6 @@ from __future__ import annotations
 from classes.coassurance import Coassurance
 from classes.facultative import Facultative
 from classes.garantie import Garantie
-from classes.reassureur import Reassureur
 from classes.risque import Risque
 
 #from utils import to_coassurances, to_dicts, to_factultatives, to_facultatives, to_garanties, to_risques
@@ -14,7 +13,7 @@ class Avenant:
     def __init__(self) -> None:
         self.deja_traite = 0
         self.garantie_par_risque = 1
-        self.statut_coassurance = 0
+        self.statut_coassurance = 1
 
         self.num_police = ""
         self.code_inter = ""
@@ -37,14 +36,13 @@ class Avenant:
         self.garanties = []
         self.facultatives = []
         self.coassurances = []
-        self.reassureurs = []
 
         #self.garantie_par_risque = 0
         #self.garantie_par_risque = 1 => on suppose que chaque garantie est lié à un seul risque
         #self.garantie_par_risque = 2 => on suppose que toutes les garanties sont liées à tous les risques
-
+    
         #on suppose le cas par défaut
-        #self.garantie_par_risque = 0
+        self.garantie_par_risque = 0
 
     def change_cas(self, cas : int):
         self.garantie_par_risque = cas
@@ -54,6 +52,7 @@ class Avenant:
         self.deja_traite = data["deja_traite"]
         self.garantie_par_risque = data["garantie_par_risque"]
         self.statut_coassurance = data["statut_coassurance"]
+
         self.nom = data["nom"]
         self.prenoms = data["prenoms"]
         self.activite = data["activite"]
@@ -70,8 +69,7 @@ class Avenant:
         self.garanties = to_garanties(data["garanties"])
         self.facultatives = to_facultatives(data["facultatives"])
         self.coassurances = to_coassurances(data["coassurances"])
-        self.reassureurs = to_reassureurs(data["reassureurs"])
-
+        self.change_cas(1 if self.garantie_par_risque == 1 else 2)
 
     def to_dict(self):
         odict = {
@@ -91,7 +89,7 @@ class Avenant:
             "risques": to_dicts(self.risques),
             "garanties": to_dicts(self.garanties),
             "facultatives": to_dicts(self.facultatives),
-            "coassurances": to_dicts(self.coassurances)
+            "coassurances": to_dicts(self.coassurances),
         }
         return odict
 
@@ -127,7 +125,6 @@ class Avenant:
                     risque.garanties.append(garantie)
             nrisques.append(risque)
         self.risques = nrisques
-        self.garanties.append(garantie)
 
     def takoff_garantie_to_risques(self, garantie : Garantie) -> None:
         """
@@ -200,19 +197,10 @@ class Avenant:
             return True
         except: return False
 
-    def modify_risque(self, nrisque : Risque):
-        try:
-            verif, _, position = self.find_a_risque(nrisque.id_risque)
-            if verif:
-                self.risques[position] = nrisque
-                return True
-            else: return False
-        except: return False
-
     def remove_risque(self, risque : Risque) -> bool:
         verif, risque, i = self.find_a_risque(risque.id_risque)
         if verif:
-            if self.garantie_par_risque == 0:
+            if self.garantie_par_risque == 2:
                 self.risques.pop(i)
                 return True
             else:
@@ -234,19 +222,10 @@ class Avenant:
             return False
         else:
             try:
+                self.attribute_garantie_to_risques(garantie)
                 self.garanties.append(garantie)
                 return True
             except: return False
-
-    def modify_garantie(self, ngarantie : Garantie):
-        try:
-            verif, _, position = self.find_a_garantie(self.garanties, ngarantie.id_garantie)
-            if verif:
-                self.garanties[position] = ngarantie
-                self.attribute_garanties_to_risques()
-                return True
-            else: return False
-        except: return False
 
     def remove_garantie(self, garantie : Garantie) -> bool:
         if garantie.id_risque == "":
@@ -273,15 +252,6 @@ class Avenant:
             return True
         except: return False
 
-    def modify_facultative(self, nfacultative : Facultative):
-        try:
-            verif, _, position = self.find_a_facultative(nfacultative.id_facultative)
-            if verif:
-                self.facultatives[position] = nfacultative
-                return True
-            else: return False
-        except: return False
-
     def remove_facultative(self, facultative : Facultative) -> bool:
         try:
             exist, _, position = self.find_a_facultative(facultative.id_facultative)
@@ -295,15 +265,6 @@ class Avenant:
         try: 
             self.coassurances.append(coassurance)
             return True
-        except: return False
-
-    def modify_coassurance(self, ncoassurance : Coassurance):
-        try:
-            verif, _, position = self.find_a_coassurance(ncoassurance.id_coass)
-            if verif:
-                self.coassurances[position] = ncoassurance
-                return True
-            else: return False
         except: return False
 
     def remove_coassurance(self, coassurance : Coassurance) -> bool:
@@ -362,15 +323,6 @@ def to_coassurances(datas : list) -> list[Coassurance]:
             coassurance.from_dict(data)
             coassurances.append(coassurance)
     return coassurances
-
-def to_reassureurs(datas : list) -> list[Reassureur]:
-    reassureurs = []
-    if len(datas) > 0:
-        for data in datas:
-            reassureur = Reassureur()
-            reassureur.from_dict(data)
-            reassureurs.append(reassureur)
-    return reassureurs
 
 def to_dicts(objects : list) -> list:
     olist = []

@@ -10,6 +10,7 @@ class Garantie:
         self.prime_nette = 0
 
         self.id_garantie = ""
+
         self.id_risque = ""
 
     def from_dict(self, data : dict) -> None:
@@ -23,7 +24,6 @@ class Garantie:
         self.id_garantie = data["id_garantie"]
 
     def to_dict(self) -> dict:
-        print("*********************je suis appelé*********************")
         odict = {
             "id_risque": self.id_risque,
             "id_garantie": self.id_garantie,

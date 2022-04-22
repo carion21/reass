@@ -30,9 +30,16 @@ class Risque:
             "classe_risque": self.classe_risque,
             "libelle_classe_risque": self.libelle_classe_risque,
             "id_risque": self.id_risque,
-            "garanties": to_dicts(self.garanties)
+            "garanties": self.garanties
         }
         return odict
+
+    """
+    def generate_temporary_id_v1(self) -> None:
+        source = self.libelle_classe_risque+"__"+self.classe_risque+"__"+self.libelle_classe_risque
+        self.id_risque = generate_code(source)
+    """
+
 
     def generate_temporary_id(self) -> None:
         source = self.libelle_classe_risque+"__"+self.classe_risque+"__"+self.libelle_classe_risque
@@ -42,9 +49,3 @@ class Risque:
 
         hex_dig = hash_object.hexdigest()
         self.id_risque = hex_dig
-
-def to_dicts(objects : list) -> list:
-    olist = []
-    for obj in objects:
-        olist.append(obj.to_dict())
-    return olist

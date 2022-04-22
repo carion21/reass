@@ -8,7 +8,13 @@ class Facultative:
     def __init__(self):
         self.code_reass = ""
         self.reassureurs = []
-        self.garanties = []
+
+        self.code_branche_assurance = ""
+        self.libelle_branche_reass = ""
+
+        self.prime_fac = ""
+        self.montant_commission = ""
+        self.capitaux_net = ""
 
         self.id_facultative = ""
 
@@ -16,23 +22,35 @@ class Facultative:
     def from_dict(self, data : dict) -> None:
         self.code_reass = data["code_reass"]
 
+        self.code_branche_assurance = data["code_branche_assurance"]
+        self.libelle_branche_reass = data["libelle_branche_reass"]
+
+        self.prime_fac = data["prime_fac"]
+        self.montant_commission = data["montant_commission"]
+        self.capitaux_net = data["capitaux_net"]
+
         self.id_facultative = data["id_facultative"]
+
 
     def to_dict(self):
         odict = {
             "id_facultative": self.id_facultative,
             "code_reass": self.code_reass,
-            "reassureurs": self.reassureurs,
-            "garanties": self.garanties
+            "code_branche_assurance": self.code_branche_assurance,
+            "libelle_branche_reass": self.libelle_branche_reass,
+            "prime_fac": self.prime_fac,
+            "montant_commission": self.montant_commission,
+            "capitaux_net": self.capitaux_net,
+            "reassureurs": self.reassureurs
         }
         return odict
 
-    def find_a_reassureur(self, id_reassurance : str) -> tuple[bool,Reassureur,int]:
+    def find_a_reassureur(self, nom_reass : str) -> tuple[bool,Reassureur,int]:
         exist = False
         areassureur = None
         position= None
         for reass in self.reassureurs:
-            if reass.id_reassurance == id_reassurance:
+            if reass.reassureur == nom_reass:
                 exist = True
                 areassureur = reass
                 position = self.reassureurs.index(reass)
@@ -40,34 +58,17 @@ class Facultative:
         return exist, areassureur, position
 
     def add_reassureur(self, reassureur : Reassureur):
-        try: 
-            self.reassureurs.append(reassureur)
-            return True
-        except: return False
-
-    def modify_reassureur(self, nreassureur : Reassureur):
-        try:
-            verif, _, position = self.find_a_reassureur(nreassureur.id_reassureur)
-            if verif:
-                self.reassureurs[position] = nreassureur
-                return True
-            else: return False
-        except: return False
+        self.reassureurs.append(reassureur)
 
     def remove_reassureur(self,reassureur : Reassureur):
         try:
-            exist, _, position = self.find_a_reassureur(reassureur.id_reassurance)
+            exist, _, position = self.find_a_reassureur(reassureur.reassureur)
             if exist:
                 self.reassureurs.pop(position)
                 return True
             else: return False
         except: 
+            print("Je suis ici")
             return False
-
-def to_dicts(objects : list) -> list:
-    olist = []
-    for obj in objects:
-        olist.append(obj.to_dict())
-    return olist
 
     
